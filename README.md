@@ -3,8 +3,8 @@
 Automatically organize anime episode files into series-specific folders by intelligently parsing filenames.
 
 ## 📖 Overview
-
-This PowerShell script automatically organizes anime files into series-specific folders by parsing filenames. Perfect for managing large collections of anime downloads from release groups like SubsPlease, Erai-raws, HorribleSubs, and more.
+Created with Claude Sonnet 4.5 AI
+This PowerShell script automatically organizes anime files into series-specific folders by parsing filenames. Perfect for managing large collections of anime downloads.
 
 **What it does:**
 - 🔍 Scans a folder for anime video files
@@ -34,3 +34,4 @@ Specific Folder:
 
 Network Share:
 .\AnimeOrganizer.ps1 -SourcePath "\\NAS\Anime"
+
