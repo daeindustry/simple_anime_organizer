@@ -1,5 +1,3 @@
-markdown
-
 # 📺 Anime File Organizer
 
 Automatically organize anime episode files into series-specific folders by intelligently parsing filenames.
