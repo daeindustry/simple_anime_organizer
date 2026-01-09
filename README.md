@@ -28,29 +28,7 @@ This PowerShell script automatically organizes anime files into series-specific 
 - **Read/Write permissions** on the source folder
 - Works on **local drives** and **network shares**
 
-### Check Your PowerShell Version
-```powershell
-$PSVersionTable.PSVersion
 
-If you need to upgrade PowerShell: Download PowerShell
-🚀 Installation
-1. Download the Script
-
-Save the script as AnimeOrganizer.ps1 in a convenient location:
-
-D:\Scripts\AnimeOrganizer.ps1
-
-2. Enable Script Execution (First Time Only)
-
-Open PowerShell as Administrator and run:
-
-powershell
-
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-Type Y when prompted.
-
-    Note: This only needs to be done once per user account.
 
 📝 Usage
 Basic Usage
@@ -316,82 +294,7 @@ powershell
 # Ensure your Windows user has access to the share
 D:\Scripts\AnimeOrganizer.ps1 -SourcePath "\\NAS\Anime"
 
-Problem: Script finds 0 files
 
-Possible causes:
-
-    Files already in subfolders
-        Script only processes files in root directory
-        This is intentional to prevent re-organizing
-
-    Wrong directory
-        Verify path: Get-ChildItem -Path "D:\Your\Path"
-
-    No video files
-        Check for .mkv, .mp4, .avi, or .webm files
-
-    Files don't match pattern
-        Run with -DryRun to see matching details
-
-📞 Understanding Output
-Sample Output
-
-Enhanced Anime Organizer
-=========================
-Source: D:\Downloads\Anime
-DryRun: False
-
-Found 15 video files
-
-Analyzing filenames...
-
-Checking: [SubsPlease] Frieren - 01 (1080p).mkv
-  MATCHED (Episode)!
-  Release: SubsPlease
-  Series: Frieren
-  Episode/Type: 01
-
-=========================
-Found 3 series
-
-  Frieren - 5 files
-  One Piece - 7 files
-  Spy Family - 3 files
-
-Ready to move files into folders.
-Continue? (y/n): y
-
-=========================
-Processing files...
-=========================
-
---- Series: Frieren ---
-
-[OK] Folder created
-
-File: [SubsPlease] Frieren - 01 (1080p).mkv
-  [SUCCESS] Moved!
-
-=========================
-Summary
-=========================
-Folders created: 3
-Files moved: 15
-Files skipped: 0
-Errors: 0
-
-Status Messages Explained
-Message	Meaning
-MATCHED (Episode)	Standard episode detected
-MATCHED (OVA)	OVA episode detected
-MATCHED (Movie)	Movie/special detected
-MATCHED (Special)	Special episode detected
-NO MATCH	Filename doesn't match expected pattern
-[OK] Folder created	New folder created successfully
-Folder exists	Folder already existed
-[SUCCESS] Moved!	File successfully moved
-[SKIPPED]	File already exists in destination
-[ERROR]	Operation failed
 🎓 Tips and Best Practices
 1. Always Test First
 
@@ -400,50 +303,9 @@ powershell
 # Use -DryRun before actually moving files
 .\AnimeOrganizer.ps1 -DryRun
 
-2. Keep Script Accessible
-
-Store in an easy-to-remember location:
-
-D:\Scripts\AnimeOrganizer.ps1
-C:\Users\YourName\Scripts\AnimeOrganizer.ps1
-
-3. Create Desktop Shortcut
-
-Option A: Batch File
-
-batch
-
-@echo off
-cd /d D:\Downloads\Anime
-powershell.exe -ExecutionPolicy Bypass -File "D:\Scripts\AnimeOrganizer.ps1"
-pause
-
-Option B: PowerShell Shortcut
-
-    Target: powershell.exe -ExecutionPolicy Bypass -File "D:\Scripts\AnimeOrganizer.ps1" -SourcePath "D:\Downloads\Anime"
-    Start in: D:\Downloads\Anime
-
-4. Backup Before Large Operations
-
-For first-time use on large collections:
-
-powershell
-
-# Test on a small subset first
-Copy-Item "D:\Anime\*" -Destination "D:\Anime_Test" -Include "*.mkv" | Select-Object -First 10
-.\AnimeOrganizer.ps1 -SourcePath "D:\Anime_Test"
-
-5. Keep Release Group Names
-
-Files from different release groups are grouped by series name by default:
-
-Frieren\
-├── [SubsPlease] Frieren - 01.mkv
-└── [Erai-raws] Frieren - 01.mkv
 
 This is intentional - filenames preserve release group info.
 📄 Quick Reference
-
 ╔════════════════════════════════════════════════════════════╗
 ║              ANIME ORGANIZER QUICK REFERENCE               ║
 ╠════════════════════════════════════════════════════════════╣
@@ -465,62 +327,3 @@ This is intentional - filenames preserve release group info.
 ║   [Group] Movie Name (quality).mkv                         ║
 ║   [Group] Series - Special Name (quality).mkv              ║
 ╚════════════════════════════════════════════════════════════╝
-
-❓ FAQ
-<details> <summary><b>Will this delete my files?</b></summary>
-
-No, the script only moves files to subfolders in the same location. It never deletes anything.
-</details> <details> <summary><b>Can I undo the organization?</b></summary>
-
-Yes! Files are just moved to subfolders. You can manually move them back, or use this command:
-
-powershell
-
-Get-ChildItem -Recurse -File | Move-Item -Destination "D:\Downloads\Anime"
-
-</details> <details> <summary><b>Does it work on Mac or Linux?</b></summary>
-
-No, this is designed for Windows PowerShell. However, it could be adapted for PowerShell Core (cross-platform).
-</details> <details> <summary><b>Can it handle subtitle files (.srt, .ass)?</b></summary>
-
-The current version only processes video files. You could extend it to include subtitle extensions in the video file filter.
-</details> <details> <summary><b>What if two release groups have the same series?</b></summary>
-
-They'll be grouped in the same folder by series name. The original filename (including release group tag) is preserved.
-</details> <details> <summary><b>Will it organize files already in subfolders?</b></summary>
-
-No, it only processes files in the root directory. This prevents accidentally re-organizing already organized content.
-</details> <details> <summary><b>Can I customize folder naming?</b></summary>
-
-Yes! Edit the regex patterns in the script to change how series names are extracted and formatted.
-</details> <details> <summary><b>What about versioned releases (v2, v3)?</b></summary>
-
-Files like Series - 01v2 are treated as episode 01 and grouped accordingly. Both versions will be in the same folder.
-</details>
-🤝 Contributing
-
-Found a filename pattern that doesn't work? Have suggestions for improvement?
-
-    Open an issue with example filenames
-    Include the output from running with -DryRun
-    Describe expected behavior
-
-📜 License
-
-MIT License - Feel free to modify and distribute.
-🙏 Acknowledgments
-
-    Anime release groups: SubsPlease, Erai-raws, HorribleSubs, and others
-    PowerShell community for regex patterns and best practices
-
-📞 Support
-
-If you encounter issues:
-
-    ✅ Run with -DryRun to see what would happen
-    ✅ Check PowerShell version: $PSVersionTable.PSVersion
-    ✅ Verify filename format matches expected patterns
-    ✅ Check the "Troubleshooting" section above
-    ✅ Review output messages for specific errors
-
-Happy organizing! 🎬📁✨
