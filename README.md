@@ -9,7 +9,7 @@ PowerShell script that scans a directory for anime video files and moves them in
 **Features:**
 
 - Scans for `.mkv`, `.mp4`, `.avi`, `.webm` files
-- 6 pattern matching strategies for robust filename detection
+- 11 pattern matching strategies for robust filename detection
 - Extracts season/episode from `S01E01` format
 - Creates per-series folders and moves episodes
 - Dry-run mode for safe testing
@@ -41,12 +41,17 @@ The script tries these patterns in order:
 
 | # | Format | Example |
 |---|--------|---------|
-| 1 | `S01E01` / `S01E01v2` | `[Subgroup] Series Name - S01E01.mkv` |
-| 2 | Plain episode number | `[Subgroup] Series Name - 12.mkv` |
-| 3 | Dot-separated | `[Subgroup] Series.Name.S01E01.mkv` |
-| 4 | OVA | `[Subgroup] Series Name - OVA - Title.mkv` |
-| 5 | Special | `[Subgroup] Series Name - Special Name (DVD Rip).mkv` |
-| 6 | Movie | `[Subgroup] Series Name - Movie Title (DVD Rip).mkv` |
+| 1 | `[Group] Series - S01E01` / `S01E01v2` | `[Judas] Hunter x Hunter (2011) - S01E01.mkv` |
+| 2 | `[Group] Series - Episode (plain)` | `[Judas] Frieren - 12.mkv` |
+| 3 | Dot-separated `S01E01` | `Series.Name.S01E01.mkv` |
+| 4 | `[Group] Series - OVA - Title` | `[Sub] Series - OVA - Title.mkv` |
+| 5 | `[Group] Series - Special (Rip)` | `[Sub] Series - Special (DVD Rip).mkv` |
+| 6 | `[Group] Movie/Special (paren)` | `[Sub] Series (Movie).mkv` |
+| 7 | `Series (Year) - S01E01 - Title` | `Kaiju No. 8 (2024) - S01E01 - Title.mkv` |
+| 8 | `Series (Year) - OVA - Title` | `Series (2024) - OVA - Title.mkv` |
+| 9 | `Series (Year) - (Movie/Special)` | `Series (2024) - (Movie).mkv` |
+| 10 | `Series - OVA - Title` (no group/year) | `Series - OVA - Title.mkv` |
+| 11 | Dot-separated movie with year | `Series.2025.1080p.BluRay.mkv` |
 
 ## Gotchas
 

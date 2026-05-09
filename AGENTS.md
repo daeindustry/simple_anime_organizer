@@ -12,7 +12,7 @@
 
 ## What it does
 
-Scans a directory for anime video files (`.mkv`, `.mp4`, `.avi`, `.webm`) and moves them into per-series folders. Detects series names from filenames matching `[Group] Series Name - Episode` patterns (OVA, Episode, Special, Movie).
+Scans a directory for anime video files (`.mkv`, `.mp4`, `.avi`, `.webm`) and moves them into per-series folders. Detects series names from filenames using 11 regex patterns covering `[Group] Series - S01E01`, plain episode numbers, dot-separated, OVA, Special, Movie, and no-group-tag formats (e.g., `Series (Year) - S01E01`).
 
 ## Gotchas
 
