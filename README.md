@@ -1,38 +1,37 @@
-# AnimeOrganizer
+# 📺 Anime File Organizer
 
-PowerShell script that scans a directory for anime video files and organizes them into per-series folders.
+Automatically organize anime episode files into series-specific folders by intelligently parsing filenames.
 
-## Quick start
+## 📖 Overview
+Created with Claude Sonnet 4.5 AI
+This PowerShell script automatically organizes anime files into series-specific folders by parsing filenames. Perfect for managing large collections of anime downloads.
 
-```powershell
-# Dry run (default: current directory)
-.\AnimeOrganizer.ps1 -DryRun
+**What it does:**
+- 🔍 Scans a folder for anime video files
+- 🧠 Extracts series names from filenames using intelligent pattern matching
+- 📁 Creates folders for each series
+- 🚀 Moves episodes into their respective folders
+- ✅ Handles episodes, OVAs, movies, and specials
 
-# Specify a directory
-.\AnimeOrganizer.ps1 -SourcePath "D:\Anime" -DryRun
-```
+---
 
-## What it does
+## 💾 Requirements
 
-Scans a directory for anime video files (`.mkv`, `.mp4`, `.avi`, `.webm`) and moves them into per-series folders. Detects series names from filenames matching `[Group] Series Name - Episode` patterns (OVA, Episode, Special, Movie).
+- **Windows 10/11** or **Windows Server 2016+**
+- **PowerShell 5.1 or higher**
+- **Read/Write permissions** on the source folder
+- Works on **local drives** and **network shares**
 
-## Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `SourcePath` | `string` | Current directory | Directory to scan for anime files |
-| `DryRun` | `switch` | `$false` | Preview changes without moving files |
+Basic Usage:
+.\AnimeOrganizer.ps1
 
-## Detection patterns
+Dry Run (Test):
+.\AnimeOrganizer.ps1 -DryRun  
 
-1. `[Group] Series - OVA1` — OVA episodes
-2. `[Group] Series - 12` — Regular episodes
-3. `[Group] Series - Special (` — Specials/ED/OP collections
-4. `[Group] Series (` — Movies or standalone specials
+Specific Folder: 
+.\AnimeOrganizer.ps1 -SourcePath "D:\Anime" 
 
-## Gotchas
+Network Share:
+.\AnimeOrganizer.ps1 -SourcePath "\\NAS\Anime"
 
-- Files with `.txt` sidecars (nfo, subs, etc.) are **not** moved — only video files
-- Unmatched files are listed at the end with no action taken
-- The script prompts for confirmation before moving files (skipped in `-DryRun` mode)
-- Destination file conflicts are skipped silently (not overwritten)
