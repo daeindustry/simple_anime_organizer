@@ -37,28 +37,85 @@ $unmatched = @()
 
 # Enhanced regex patterns (in order of specificity)
 $patterns = @(
-    # Pattern 1: [Group] Series Name - OVA1/OVA2/etc
+    # Pattern 1: [Group] Series Name - S01E01 / S01E01v2
     @{
-        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+(OVA\d+)'
-        Type = "OVA"
-    },
-    
-    # Pattern 2: [Group] Series Name - Episode Number (most common)
-    @{
-        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+(\d+)'
+        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+(S\d{2}E\d{2})(?:v\d+)?(?:\s|\.|$)'
         Type = "Episode"
+        GroupSeries = 2
+        GroupEpisode = 3
     },
     
-    # Pattern 3: [Group] Series Name - Special Name (like "Hana no Maki")
+    # Pattern 2: [Group] Series Name - EpisodeNumber (plain digits, no S01E01)
     @{
-        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+([A-Za-z\s]+)\s+\('
-        Type = "Special"
+        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+(\d+)(?:\s|\.|$)'
+        Type = "Episode"
+        GroupSeries = 2
+        GroupEpisode = 3
     },
     
-    # Pattern 4: [Group] Movie/Special Name (no episode number)
+    # Pattern 3: Series.Name.S01E01 (dot-separated, no group tag)
+    @{
+        Regex = '^(.+?)\.(S\d{2}E\d{2})(?:\.|$)'
+        Type = "Episode"
+        GroupSeries = 1
+        GroupEpisode = 2
+    },
+    
+    # Pattern 4: [Group] Series Name - OVA - Title
+    @{
+        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+OVA\s+-\s+(.+?)(?:\s*\(|$)'
+        Type = "OVA"
+        GroupSeries = 2
+    },
+    
+    # Pattern 5: [Group] Series Name - Special Name (DVD Rip, BluRay, etc.)
+    @{
+        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+(.+?)\s+\('
+        Type = "Special"
+        GroupSeries = 2
+    },
+    
+    # Pattern 6: [Group] Movie/Special Name (no episode number, has parentheses)
     @{
         Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+\('
         Type = "Movie"
+        GroupSeries = 2
+    },
+    
+    # Pattern 7: Series (Year) - S01E01 - Title (no group tag)
+    @{
+        Regex = '^(.+?\(20\d{2}\))\s+-\s+(S\d{2}E\d{2})(?:v\d+)?(?:\s|\.|$)'
+        Type = "Episode"
+        GroupSeries = 1
+        GroupEpisode = 2
+    },
+    
+    # Pattern 8: Series (Year) - OVA - Title (no group tag)
+    @{
+        Regex = '^(.+?\(20\d{2}\))\s+-\s+OVA\s+-\s+(.+?)(?:\s*\(|$)'
+        Type = "OVA"
+        GroupSeries = 1
+    },
+    
+    # Pattern 9: Series (Year) - Movie/Special (no group tag)
+    @{
+        Regex = '^(.+?\(20\d{2}\))\s+\((?:Movie|Special)\)'
+        Type = "Movie"
+        GroupSeries = 1
+    },
+    
+    # Pattern 10: Series - OVA - Title (no group, no year)
+    @{
+        Regex = '^(.+?)\s+-\s+OVA\s+-\s+(.+?)(?:\s*\(|$)'
+        Type = "OVA"
+        GroupSeries = 1
+    },
+    
+    # Pattern 11: Dot-separated movie with year (e.g., Name.2025.1080p...)
+    @{
+        Regex = '^(.+?)\.(\d{4})\.\d{3,4}p'
+        Type = "Movie"
+        GroupSeries = 1
     }
 )
 
@@ -74,17 +131,30 @@ foreach ($file in $videoFiles) {
     # Try each pattern
     foreach ($pattern in $patterns) {
         if ($name -match $pattern.Regex) {
-            $releaseGroup = $Matches[1].Trim()
-            $seriesName = $Matches[2].Trim()
-            $episodeOrType = if ($Matches.Count -ge 4) { $Matches[3].Trim() } else { "" }
+            $releaseGroup = $Matches[$pattern.GroupRelease].Trim()
+            $seriesName = $Matches[$pattern.GroupSeries].Trim()
             
-            # Clean up series name
+            # Extract season/episode from S0xE0x format if applicable
+            $seasonNum = $null
+            $episodeNum = $null
+            $episodeLabel = ""
+            if ($pattern.GroupEpisode -and $Matches[$pattern.GroupEpisode] -match '^S(\d{2})E(\d{2})(?:v\d)?$') {
+                $seasonNum = [int]$Matches[1]
+                $episodeNum = [int]$Matches[2]
+                $episodeLabel = "S$seasonNum E$episodeNum"
+            } elseif ($pattern.GroupEpisode) {
+                $episodeLabel = $Matches[$pattern.GroupEpisode]
+            }
+            
+            # Sanitize series name: replace em dash with regular dash
+            $seriesName = $seriesName -replace '\u2013', '-'
+            # Remove forbidden filename characters
             $seriesName = $seriesName -replace '[<>:"/\\|?*]', '_'
             
             Write-Host "  MATCHED ($($pattern.Type))!" -ForegroundColor Green
             Write-Host "  Release: $releaseGroup" -ForegroundColor Cyan
             Write-Host "  Series: $seriesName" -ForegroundColor Cyan
-            Write-Host "  Episode/Type: $episodeOrType" -ForegroundColor Cyan
+            Write-Host "  Episode/Type: $episodeLabel" -ForegroundColor Cyan
             
             # Group by series name
             if (-not $seriesGroups.ContainsKey($seriesName)) {
