@@ -37,25 +37,37 @@ $unmatched = @()
 
 # Enhanced regex patterns (in order of specificity)
 $patterns = @(
-    # Pattern 1: [Group] Series Name - OVA1/OVA2/etc
+    # Pattern 1: [Group] Series Name - S01E01 / S01E01v2 (most common in this batch)
     @{
-        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+(OVA\d+)'
-        Type = "OVA"
+        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+(S\d{2}E\d{2}(?:v\d)?)(?:\s|\.)'
+        Type = "Episode"
     },
     
     # Pattern 2: [Group] Series Name - Episode Number (most common)
     @{
-        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+(\d+)'
+        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+(?<!S)(\d+)(?:\s|$)'
         Type = "Episode"
     },
     
-    # Pattern 3: [Group] Series Name - Special Name (like "Hana no Maki")
+    # Pattern 3: [Group] Series.Name - S01E01 (dot-separated)
+    @{
+        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\.\s*(S\d{2}E\d{2}(?:v\d)?)'
+        Type = "Episode"
+    },
+    
+    # Pattern 4: [Group] Series Name - OVA - Title (OVA special)
+    @{
+        Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+OVA\s+-\s+(.+?)(?:\s*\(|$)'
+        Type = "OVA"
+    },
+    
+    # Pattern 5: [Group] Series Name - Special Name (like "Hana no Maki")
     @{
         Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+-\s+([A-Za-z\s]+)\s+\('
         Type = "Special"
     },
     
-    # Pattern 4: [Group] Movie/Special Name (no episode number)
+    # Pattern 6: [Group] Movie/Special Name (no episode number)
     @{
         Regex = '^[\[]([^\]]+)[\]]\s+(.+?)\s+\('
         Type = "Movie"
@@ -76,9 +88,20 @@ foreach ($file in $videoFiles) {
         if ($name -match $pattern.Regex) {
             $releaseGroup = $Matches[1].Trim()
             $seriesName = $Matches[2].Trim()
-            $episodeOrType = if ($Matches.Count -ge 4) { $Matches[3].Trim() } else { "" }
+            $episodeOrType = if ($pattern.Type -eq "OVA" -and $Matches.Count -ge 4) { $Matches[3].Trim() } else { "" }
             
-            # Clean up series name
+            # Extract season/episode from S0xE0x format
+            $seasonNum = $null
+            $episodeNum = $null
+            if ($episodeOrType -match '^S(\d{2})E(\d{2})(?:v\d)?$') {
+                $seasonNum = [int]$Matches[1]
+                $episodeNum = [int]$Matches[2]
+                $episodeOrType = "S$seasonNum E$episodeNum"
+            }
+            
+            # Sanitize series name: replace em dash with regular dash
+            $seriesName = $seriesName -replace '\u2013', '-'
+            # Remove forbidden filename characters
             $seriesName = $seriesName -replace '[<>:"/\\|?*]', '_'
             
             Write-Host "  MATCHED ($($pattern.Type))!" -ForegroundColor Green
