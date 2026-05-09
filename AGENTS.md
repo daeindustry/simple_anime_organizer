@@ -8,6 +8,9 @@
 
 # Specify a directory
 .\AnimeOrganizer.ps1 -SourcePath "D:\Anime" -DryRun
+
+# Verbose output (shows per-file matching details)
+.\AnimeOrganizer.ps1 -DryRun -Verbose
 ```
 
 ## What it does
