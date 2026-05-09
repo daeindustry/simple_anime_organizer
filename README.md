@@ -34,8 +34,8 @@ PowerShell script that scans a directory for anime video files and moves them in
 # Execute the move
 .\AnimeOrganizer.ps1 -SourcePath "D:\Anime"
 
-# Verbose output (shows per-file matching details)
-.\AnimeOrganizer.ps1 -DryRun -Verbose
+# Show per-file matching details
+.\AnimeOrganizer.ps1 -DryRun -ShowDetails
 ```
 
 ## Filename Patterns
